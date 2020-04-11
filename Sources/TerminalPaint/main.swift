@@ -1,109 +1,134 @@
 import Foundation
+import Termbox
+
+try! Termbox.initialize()
+
+Termbox.inputModes = [.mouse]
+if #available(OSX 10.12, *) {
+  let timer = Timer(timeInterval: 0.1, repeats: true) { _ in
+    guard let event = Termbox.pollEvent() else {
+      return
+    }
+    switch event {
+    case let .mouse(x: mouseX, y: mouseY):
+      Termbox.put(x: mouseX, y: mouseY, character: Character(".").unicodeScalars.first!)
+    default:
+      break
+    }
+    Termbox.present()
+  }
+  RunLoop.main.add(timer, forMode: .default)
+} else {
+  // Fallback on earlier versions
+}
+
+RunLoop.main.run(mode: .default, before: .distantFuture)
+
 // swiftlint:disable all
-class PromptTimer {
-  let customMode = "com.rderik.myevents"
-
-  func start() {
-    let timer = Timer(timeInterval: 1.0, target: self, selector: #selector(printTime), userInfo: nil, repeats: true)
-    RunLoop.current.add(timer, forMode: RunLoop.Mode(customMode))
-  }
-
-  @objc func printTime(timer _: Timer) {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "HH:mm:ss"
-    let currentDateTime = Date()
-    let strTime = formatter.string(from: currentDateTime)
-    print("\u{1B}7\r[\(strTime)] $ \u{1B}8", terminator: "")
-    fflush(__stdoutp)
-  }
-}
-
-let promptPlaceHoder = "[00:00:00] $ "
-
-func list() -> [String] {
-  let fm = FileManager.default
-  let content: [String]
-  do {
-    try content = fm.contentsOfDirectory(atPath: ".")
-  } catch {
-    content = [String]()
-  }
-  return content
-}
-
-func processCommand(_ fd: CFFileDescriptorNativeDescriptor = STDIN_FILENO) -> Int8 {
-  let fileH = FileHandle(fileDescriptor: fd)
-  let command = String(data: fileH.availableData,
-                       encoding: .utf8)?.trimmingCharacters(
-    in: .whitespacesAndNewlines) ?? ""
-  switch command {
-  case "exit":
-    return -1
-  case "ls":
-    print(list(), terminator: "\n\(promptPlaceHoder)")
-    fflush(__stdoutp)
-    return 0
-  case "":
-    return 1
-  default:
-    print("Your command: \(command)", terminator: "\n\(promptPlaceHoder)")
-    fflush(__stdoutp)
-    return 0
-  }
-}
-
-// This is the implementation of the shell using an never-ending loop
-/*
- print("Welcome to rdShell\n% ", terminator: "")
- outerLoop: while true {
- let result = processCommand()
- switch result {
- case -1:
-     break outerLoop
- case 1:
-     print("Error reading command")
-     break outerLoop
- default:
-     break
- }
- }
- print("Bye bye now.")
- */
-
-func fileDescriptorCallBack(_ fd: CFFileDescriptor?, _: CFOptionFlags, _: UnsafeMutableRawPointer?) {
-  let nfd = CFFileDescriptorGetNativeDescriptor(fd)
-  let result = processCommand(nfd)
-  switch result {
-  case -1:
-    print("Bye bye now.")
-  default:
-    registerStdinFileDescriptor()
-    // customMode is defined outside as:
-    // let customMode = "com.rderik.myevents"
-    RunLoop.main.run(mode: RunLoop.Mode(customMode),
-                     before: Date.distantFuture)
-  }
-}
-
-func registerStdinFileDescriptor() {
-  let fd = CFFileDescriptorCreate(kCFAllocatorDefault, STDIN_FILENO, false, fileDescriptorCallBack, nil)
-  CFFileDescriptorEnableCallBacks(fd, kCFFileDescriptorReadCallBack)
-  let source = CFFileDescriptorCreateRunLoopSource(kCFAllocatorDefault, fd, 0)
-
-  // customMode is defined outside as:
-  // let customMode = "com.rderik.myevents"
-  let cfCustomMode: CFRunLoopMode = CFRunLoopMode(customMode as CFString)
-  CFRunLoopAddSource(RunLoop.main.getCFRunLoop(), source, cfCustomMode)
-}
-
-let customMode = "com.rderik.myevents"
-print("Welcome to rdShell\n\(promptPlaceHoder)", terminator: "")
-fflush(__stdoutp)
-registerStdinFileDescriptor()
-let pt = PromptTimer()
-pt.start()
-RunLoop.main.run(mode: RunLoop.Mode(customMode),
-                 before: Date.distantFuture)
+// class PromptTimer {
+//  let customMode = "com.rderik.myevents"
+//
+//  func start() {
+//    let timer = Timer(timeInterval: 1.0, target: self, selector: #selector(printTime), userInfo: nil, repeats: true)
+//    RunLoop.current.add(timer, forMode: RunLoop.Mode(customMode))
+//  }
+//
+//  @objc func printTime(timer _: Timer) {
+//    let formatter = DateFormatter()
+//    formatter.dateFormat = "HH:mm:ss"
+//    let currentDateTime = Date()
+//    let strTime = formatter.string(from: currentDateTime)
+//    print("\u{1B}7\r[\(strTime)] $ \u{1B}8", terminator: "")
+//    fflush(__stdoutp)
+//  }
+// }
+//
+// let promptPlaceHoder = "[00:00:00] $ "
+//
+// func list() -> [String] {
+//  let fm = FileManager.default
+//  let content: [String]
+//  do {
+//    try content = fm.contentsOfDirectory(atPath: ".")
+//  } catch {
+//    content = [String]()
+//  }
+//  return content
+// }
+//
+// func processCommand(_ fd: CFFileDescriptorNativeDescriptor = STDIN_FILENO) -> Int8 {
+//  let fileH = FileHandle(fileDescriptor: fd)
+//  let command = String(data: fileH.availableData,
+//                       encoding: .utf8)?.trimmingCharacters(
+//    in: .whitespacesAndNewlines) ?? ""
+//  switch command {
+//  case "exit":
+//    return -1
+//  case "ls":
+//    print(list(), terminator: "\n\(promptPlaceHoder)")
+//    fflush(__stdoutp)
+//    return 0
+//  case "":
+//    return 1
+//  default:
+//    print("Your command: \(command)", terminator: "\n\(promptPlaceHoder)")
+//    fflush(__stdoutp)
+//    return 0
+//  }
+// }
+//
+//// This is the implementation of the shell using an never-ending loop
+/// *
+// print("Welcome to rdShell\n% ", terminator: "")
+// outerLoop: while true {
+// let result = processCommand()
+// switch result {
+// case -1:
+//     break outerLoop
+// case 1:
+//     print("Error reading command")
+//     break outerLoop
+// default:
+//     break
+// }
+// }
+// print("Bye bye now.")
+// */
+//
+// func fileDescriptorCallBack(_ fd: CFFileDescriptor?, _: CFOptionFlags, _: UnsafeMutableRawPointer?) {
+//  let nfd = CFFileDescriptorGetNativeDescriptor(fd)
+//  let result = processCommand(nfd)
+//  switch result {
+//  case -1:
+//    print("Bye bye now.")
+//  default:
+//    registerStdinFileDescriptor()
+//    // customMode is defined outside as:
+//    // let customMode = "com.rderik.myevents"
+//    RunLoop.main.run(mode: RunLoop.Mode(customMode),
+//                     before: Date.distantFuture)
+//  }
+// }
+//
+// func registerStdinFileDescriptor() {
+//  let fd = CFFileDescriptorCreate(kCFAllocatorDefault, STDIN_FILENO, false, fileDescriptorCallBack, nil)
+//  CFFileDescriptorEnableCallBacks(fd, kCFFileDescriptorReadCallBack)
+//  let source = CFFileDescriptorCreateRunLoopSource(kCFAllocatorDefault, fd, 0)
+//
+//  // customMode is defined outside as:
+//  // let customMode = "com.rderik.myevents"
+//  let cfCustomMode: CFRunLoopMode = CFRunLoopMode(customMode as CFString)
+//  CFRunLoopAddSource(RunLoop.main.getCFRunLoop(), source, cfCustomMode)
+// }
+//
+// let customMode = "com.rderik.myevents"
+// print("Welcome to rdShell\n\(promptPlaceHoder)", terminator: "")
+// fflush(__stdoutp)
+// registerStdinFileDescriptor()
+// let pt = PromptTimer()
+// pt.start()
+// RunLoop.main.run(mode: RunLoop.Mode(customMode),
+//                 before: Date.distantFuture)
 
 //
 //// A TUI program uses your terminal (simulator) as a canvas and draws characters
