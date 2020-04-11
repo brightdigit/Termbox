@@ -26,8 +26,8 @@ func printAt(x: Int32, y: Int32, text: String,
   // We can update characters on the screen one at a time with, each with a
   // distinct style. Here we are going to start at `x` and set characters in
   // `text` until we run out of horizontal space in row `y`.
-  for (c, xi) in zip(text.unicodeScalars, x ..< border) {
-    Termbox.put(x: xi, y: y, character: c, foreground: foreground,
+  for (character, xValue) in zip(text.unicodeScalars, x ..< border) {
+    Termbox.put(x: xValue, y: y, character: character, foreground: foreground,
                 background: background)
   }
 }
