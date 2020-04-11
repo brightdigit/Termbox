@@ -6,9 +6,11 @@ let package = Package(
     products: [
         .library(name: "Termbox", targets: ["Termbox"]),
         .library(name: "ctermbox", targets: ["ctermbox"]),
+        .executable(name: "TerminalPaint", targets: ["TerminalPaint"]),
     ],
     targets: [
         .target(name: "Termbox", dependencies: ["ctermbox"]),
         .target(name: "ctermbox"),
+        .target(name: "TerminalPaint", dependencies: ["Termbox"])
     ]
 )
