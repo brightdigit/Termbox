@@ -1,6 +1,7 @@
 import Foundation
 import Termbox
 
+// swiftlint:disable:next force_try
 try! Termbox.initialize()
 
 Termbox.inputModes = [.mouse]
