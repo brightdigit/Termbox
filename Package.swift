@@ -14,6 +14,9 @@ let package = Package(
     .library(name: "ctermbox", targets: ["ctermbox"]),
     .executable(name: "TerminalPaint", targets: ["TerminalPaint"])
   ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-tools-support-core.git", from: "0.1.1"),
+    ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
@@ -23,6 +26,6 @@ let package = Package(
       name: "TermboxTests",
       dependencies: ["Termbox"]
     ),
-    .target(name: "TerminalPaint", dependencies: ["Termbox"])
+    .target(name: "TerminalPaint", dependencies: [.product(name: "SwiftToolsSupport", package: "swift-tools-support-core")])
   ]
 )
