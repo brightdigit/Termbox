@@ -1,0 +1,16 @@
+PODS:
+  - Termbox (1.0.0)
+
+DEPENDENCIES:
+  - Termbox (from `../`)
+
+EXTERNAL SOURCES:
+  Termbox:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Termbox: 8168568d4d015272b6bf73abe8a23e5acb727709
+
+PODFILE CHECKSUM: 84b43c313803403e33c460f29eabea6ca854f301
+
+COCOAPODS: 1.8.4

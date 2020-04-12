@@ -1,0 +1,24 @@
+cyclomatic_complexity: 12
+file_length: 550
+function_body_length: 80
+function_parameter_count: 8
+line_length: 150
+type_body_length: 300
+identifier_name:
+  excluded: # excluded via string array
+    - id
+    - x
+    - y
+    - f1
+    - f2
+    - f3
+    - f4
+    - f5
+    - f6
+    - f7
+    - f8
+    - f9
+excluded:
+  - Tests/*/XCTestManifests.swift
+  - DerivedData
+  - .build

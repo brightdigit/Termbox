@@ -1,16 +1,14 @@
-matrix:
+jobs:
   include:
     - os: linux
-      env: ACTION=docker
-      language: generic
-      dist: trusty
+      dist: bionic
       sudo: required
-      services:
-        - docker
     - os: osx
-      env: ACTION=SwiftPM
-      language: objective-c
-      osx_image: xcode10.2
-
+      osx_image: xcode11.4
+env:
+  global:
+  - FRAMEWORK_NAME=Termbox
+before_install:
+  - bash -e ./Scripts/before_install.sh
 script:
-  - make test-$ACTION
+  - bash -e ./Scripts/script.sh
